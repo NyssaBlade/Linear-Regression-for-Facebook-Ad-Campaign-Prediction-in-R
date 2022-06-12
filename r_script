@@ -1,0 +1,44 @@
+#Preparation
+install.packages('Metrics')
+install.packages("caTools")
+install.packages("GGally")
+install.packages('gsheet')
+library(Metrics)
+library(caTools)
+library(GGally)
+library(gsheet)
+library(ggplot2)
+url=('https://docs.google.com/spreadsheets/d/1JeMqsYmTKjbRXIGkhXeW6fiqaBZ0r6EF-HRBZ9DUCGU/edit?usp=sharing')
+dataset=gsheet2tbl(url)
+colnames(dataset)
+lr_df=dataset[,c('Facebook.Ad.Clicks','Facebook.Ad.Conversions')] 
+lr_df
+
+#Data Visualization
+plot(lr_df$Facebook.Ad.Clicks,lr_df$Facebook.Ad.Conversions,
+     main='Facebook Conversions & Ad. Clicks',
+     xlab='Facebook.Ad.Clicks', ylab='Facebook.Ad.Conversions')
+abline(lm(Facebook.Ad.Conversions~Facebook.Ad.Clicks,data=lr_df),col='red')
+ggpairs(lr_df)
+
+# Preparing the data
+set.seed(100)
+sample = sample.split(lr_df$Facebook.Ad.Conversions, SplitRatio = 0.7)
+train = subset(lr_df, sample == TRUE)
+test = subset(lr_df, sample == FALSE)
+train_size = dim(train)
+test_size = dim(test)
+train_size
+test_size
+
+# Model
+model=lm(Facebook.Ad.Conversions~Facebook.Ad.Clicks,data=lr_df)
+summary(model)
+plot(model$residuals, pch = 16, col = "red")
+
+
+#Predicting test to compare rmse
+predicted=predict(model,test)
+#Root mean square error to compare accuracy
+actual=test$Facebook.Ad.Conversions
+rmse=rmse(actual, predicted)
